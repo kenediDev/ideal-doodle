@@ -45,9 +45,16 @@ export class ResetInput {
 export class UpdateAccountsInput {
   @Field(() => String, { nullable: false })
   first_name: string;
-
   @Field(() => String, { nullable: true })
   last_name: string;
+  @Field(() => String, { nullable: false })
+  country: string;
+  @Field(() => String, { nullable: false })
+  province: string;
+  @Field(() => String, { nullable: false })
+  city: string;
+  @Field(() => String, { nullable: false })
+  address: string;
 }
 
 export interface Upload {

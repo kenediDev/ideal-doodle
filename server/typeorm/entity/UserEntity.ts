@@ -22,6 +22,7 @@ import jwt from 'jsonwebtoken';
 import { secretsToken } from '../../utils/secrets';
 import { Transpoter } from '../../utils/transpoter';
 import { AccountsEntity } from './AccountsEntity';
+import { CountryEntity } from './CountryEntity';
 
 @ObjectType()
 @Entity('user')
@@ -47,7 +48,7 @@ export class UserEntity extends BaseEntity {
   createAt: Date;
 
   @Field(() => Date, { nullable: true })
-  @Column(timestamps, { nullable: true, onUpdate: 'CURRENT_TIMESTAMPS' })
+  @Column(timestamps, { nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
   updateAt: Date;
 
   @Field(() => AccountsEntity)
@@ -55,8 +56,14 @@ export class UserEntity extends BaseEntity {
   @JoinColumn()
   accounts: AccountsEntity;
 
+  async insertCountry() {
+    const country = new CountryEntity();
+    return country.save();
+  }
+
   async insertAccounts() {
     const accounts = new AccountsEntity();
+    accounts.location = await this.insertCountry();
     return accounts.save();
   }
 

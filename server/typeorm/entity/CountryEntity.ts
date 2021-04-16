@@ -2,51 +2,41 @@ import { Field, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
   BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { timestamps } from '../../utils/env';
-import { CountryEntity } from './CountryEntity';
+import { text_, timestamps } from '../../utils/env';
 
 @ObjectType()
-@Entity('accounts')
-export class AccountsEntity extends BaseEntity {
+@Entity('country')
+export class CountryEntity extends BaseEntity {
   @Field(() => String, { nullable: true })
   @PrimaryGeneratedColumn('uuid')
   readonly id: string;
 
   @Field(() => String, { nullable: true })
   @Column('varchar', { nullable: true, length: 225 })
-  avatar: string;
+  country: string;
 
   @Field(() => String, { nullable: true })
   @Column('varchar', { nullable: true, length: 225 })
-  first_name: string;
+  province: string;
 
   @Field(() => String, { nullable: true })
   @Column('varchar', { nullable: true, length: 225 })
-  last_name: string;
+  city: string;
 
-  @Field(() => Date, { nullable: false })
+  @Field(() => String, { nullable: true })
+  @Column({ type: text_, nullable: true })
+  address: string;
+
+  @Field(() => Date, { nullable: true })
   @Column(timestamps, { nullable: false })
   updateAt: Date;
 
-  @Field(() => String, { nullable: true })
-  @OneToOne(() => CountryEntity, { nullable: true })
-  @JoinColumn()
-  location: CountryEntity;
-
   @BeforeInsert()
-  async insertUpdateAt() {
-    this.updateAt = new Date();
-  }
-
-  @BeforeUpdate()
-  async updateTimeAt() {
+  async insertCreateAt() {
     this.updateAt = new Date();
   }
 }

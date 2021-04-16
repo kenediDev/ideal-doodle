@@ -13,6 +13,7 @@ import { UserQueryResponse } from '../query/userQuery';
 import fs from 'fs';
 import path from 'path';
 import { __test__ } from '../../utils/env';
+import { CountryEntity } from '../../typeorm/entity/CountryEntity';
 
 @Service()
 export class UserService {
@@ -38,6 +39,7 @@ export class UserService {
       results: await this.con
         .createQueryBuilder(UserEntity, 'user')
         .leftJoinAndSelect('user.accounts', 'accounts')
+        .leftJoinAndSelect('accounts.location', 'country')
         .getMany(),
     };
   }
@@ -45,6 +47,7 @@ export class UserService {
     const check = await this.con
       .createQueryBuilder(UserEntity, 'user')
       .leftJoinAndSelect('user.accounts', 'accounts')
+      .leftJoinAndSelect('accounts.location', 'country')
       .where('user.id=:id', { id: args })
       .getOne();
     if (!check) {
@@ -64,6 +67,7 @@ export class UserService {
     const update = await this.con
       .createQueryBuilder(UserEntity, 'user')
       .leftJoinAndSelect('user.accounts', 'accounts')
+      .leftJoinAndSelect('accounts.location', 'country')
       .where('user.username=:username', { username: args })
       .getOne();
     if (!update) {
@@ -71,11 +75,22 @@ export class UserService {
     }
     update.accounts.first_name = options.first_name;
     update.accounts.last_name = options.last_name;
+    update.accounts.location.country = options.country;
+    update.accounts.location.province = options.province;
+    update.accounts.location.city = options.city;
+    update.accounts.location.address = options.address;
     await this.con.manager.update(
       AccountsEntity,
       update.accounts.id,
       update.accounts
     );
+
+    await this.con.manager.update(
+      CountryEntity,
+      update.accounts.location.id,
+      update.accounts.location
+    );
+
     return {
       status: 'Ok',
       statusCode: 200,

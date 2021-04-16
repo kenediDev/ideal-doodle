@@ -335,6 +335,10 @@ describe('User Tester', () => {
             options: {
               first_name: faker.name.firstName(),
               last_name: faker.name.lastName(),
+              country: faker.address.country(),
+              province: faker.address.state(),
+              city: faker.address.city(),
+              address: faker.address.streetAddress(),
             },
           },
           contextValue: {

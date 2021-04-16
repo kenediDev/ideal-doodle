@@ -84,7 +84,7 @@ class App {
     return createConnection(Con)
       .then(async (con) => {
         this.loggerDB('Has been connection to DB', true);
-        this.apollo(con);
+        this.apollo();
         return con;
       })
       .catch(async (err) => {
@@ -94,7 +94,7 @@ class App {
       });
   }
 
-  public async apollo(con: Connection) {
+  public async apollo() {
     const apx = new ApolloServer({
       schema: await schema,
       uploads: false,
