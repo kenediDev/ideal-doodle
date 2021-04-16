@@ -1,8 +1,9 @@
+import 'apollo-cache-control';
 import 'reflect-metadata';
 import express from 'express';
 import cors from 'cors';
 import { Connection, createConnection } from 'typeorm';
-import { __process__, __test__ } from '../utils/env';
+import { __process__, __prod__, __test__ } from '../utils/env';
 import Con from '../config/tconfig';
 import { ApolloServer } from 'apollo-server-express';
 import { schema, UserDecode } from '../config/sconfig';
@@ -14,6 +15,7 @@ import exJWT from 'express-jwt';
 import { secretsToken } from '../utils/secrets';
 import { ApolloContext } from '../utils/apolloContext';
 import { Transpoter } from '../utils/transpoter';
+import { graphqlUploadExpress } from 'graphql-upload';
 
 class App {
   public app: express.Application = express();
@@ -39,7 +41,15 @@ class App {
   public async extensions() {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(bodyParser.json());
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: ['*'],
+        methods: ['POST'],
+        optionsSuccessStatus: 204,
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: false,
+      })
+    );
     const trans = await Transpoter();
     if (!__test__) {
       trans.verify((err, res) => {
@@ -66,6 +76,7 @@ class App {
       })
     );
     useContainer(Container);
+    this.app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 6 }));
     this.typeormCon();
   }
 
@@ -86,6 +97,9 @@ class App {
   public async apollo(con: Connection) {
     const apx = new ApolloServer({
       schema: await schema,
+      uploads: false,
+      playground: !__prod__,
+      introspection: true,
       context: async ({ req, res }): Promise<ApolloContext<UserDecode>> => {
         return {
           req,

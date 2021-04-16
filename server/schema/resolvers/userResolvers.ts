@@ -8,9 +8,11 @@ import {
   LoginInput,
   ResetInput,
   UpdateAccountsInput,
+  Upload,
 } from '../input/userInput';
 import { UserQueryResponse } from '../query/userQuery';
 import { UserService } from '../service/userService';
+import { GraphQLUpload } from 'graphql-upload';
 
 @Service()
 @Resolver()
@@ -69,11 +71,21 @@ export class UserResolvers {
     };
   }
 
+  @Authorized()
   @Mutation(() => UserQueryResponse)
   async updateAccounts(
     @Arg('options') options: UpdateAccountsInput,
     @Ctx() context: ApolloContext<UserDecode>
   ): Promise<UserQueryResponse> {
     return this.service.update(options, context.user.user.username);
+  }
+
+  @Authorized()
+  @Mutation(() => UserQueryResponse)
+  async updateAvatar(
+    @Arg('file', () => GraphQLUpload) file: Upload,
+    @Ctx() context: ApolloContext<UserDecode>
+  ): Promise<UserQueryResponse> {
+    return this.service.updateAvatar(file, context.user.user.username);
   }
 }

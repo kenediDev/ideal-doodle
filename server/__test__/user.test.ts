@@ -5,6 +5,8 @@ import { UserEntity } from '../typeorm/entity/UserEntity';
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import supertest from 'supertest';
+import { app } from '../www';
 
 const read = fs.readFileSync(
   path.join(__dirname, './assets/requirements.json'),
@@ -315,6 +317,33 @@ describe('User Tester', () => {
           },
         });
         return done();
+      });
+
+      test('Update Avatar', async (done) => {
+        await supertest(app.app)
+          .post('/graphql')
+          .set('Authorization', `Bearer ${token}`)
+          .set('Content-Type', 'multipart/form-data')
+          .field(
+            'operations',
+            '{"query": "mutation updateAvatar($file: Upload!) { updateAvatar(file: $file) {  message } }"}'
+          )
+          .field('map', '{"0": ["variables.file"]}')
+          .attach(
+            '0',
+            path.join(
+              __dirname,
+              './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+            )
+          )
+          .then((res) => {
+            expect(res.body.data).toEqual({
+              updateAvatar: {
+                message: 'Profile has been updated',
+              },
+            });
+            return done();
+          });
       });
     } else {
       test('User not have data', async (done) => {

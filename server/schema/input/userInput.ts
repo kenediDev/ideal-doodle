@@ -1,5 +1,6 @@
 import { IsEmail, MinLength } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
+import { Stream } from 'stream';
 
 @InputType()
 export class CreateUserInput {
@@ -46,4 +47,11 @@ export class UpdateAccountsInput {
 
   @Field(() => String, { nullable: true })
   last_name: string;
+}
+
+export interface Upload {
+  filename: string;
+  encoding: string;
+  mimetype: string;
+  createReadStream: () => Stream;
 }

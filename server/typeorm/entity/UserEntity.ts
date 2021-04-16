@@ -8,7 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { timestamps, __process__ } from '../../utils/env';
+import { timestamps, __process__, __test__ } from '../../utils/env';
 import bcrypt from 'bcrypt';
 import {
   CreateUserInput,
@@ -49,11 +49,9 @@ export class UserEntity extends BaseEntity {
   @JoinColumn()
   accounts: AccountsEntity;
 
-  @BeforeInsert()
   async insertAccounts() {
     const accounts = new AccountsEntity();
-    accounts.save();
-    this.accounts = accounts;
+    return accounts.save();
   }
 
   @BeforeInsert()
@@ -118,14 +116,15 @@ export class UserEntity extends BaseEntity {
       throw new Error('Accounts not found');
     }
     const trans = await Transpoter();
-    trans.sendMail({
-      from: __process__.smtp_user,
-      to: check.email,
-      subject: 'Hello ✔', // Subject line
-      text: 'Hello world?', // plain text body
-      html: '<b>Hello world?</b>', // html body
-    });
-
+    if (!__test__) {
+      trans.sendMail({
+        from: __process__.smtp_user,
+        to: check.email,
+        subject: 'Hello ✔', // Subject line
+        text: 'Hello world?', // plain text body
+        html: '<b>Hello world?</b>', // html body
+      });
+    }
     return check;
   }
 }
