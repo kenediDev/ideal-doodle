@@ -15,7 +15,9 @@
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/.bin/typeorm",
     "entities": "npm run typeorm -- entity:create --config server/config/tconfig.ts --connection --d server/typeorm/entity --name",
     "create": "npm run typeorm -- migration:create --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'",
-    "generate": "npm run typeorm -- migration:generate --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'"
+    "generate": "npm run typeorm -- migration:generate --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'",
+    "rm-media": "rm server/schema/assets/media/*",
+    "reset": "ts-node server/utils/reset.ts"
   },
   "private": true,
   "dependencies": {
