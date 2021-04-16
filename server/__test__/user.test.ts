@@ -89,6 +89,16 @@ const mutationReset = gql`
   }
 `;
 
+const mutationUpdateAccounts = gql`
+  mutation updateAccounts($options: UpdateAccountsInput!) {
+    updateAccounts(options: $options) {
+      status
+      statusCode
+      message
+    }
+  }
+`;
+
 describe('User Tester', () => {
   test('Create', async (done) => {
     const calls = await call({
@@ -276,6 +286,39 @@ describe('User Tester', () => {
     } else {
       test.skip('Not have user', async (done) => {
         expect(1 + 1).toBe(2);
+        return done();
+      });
+    }
+  });
+  describe('Accounts', () => {
+    if (token) {
+      test('Update', async (done) => {
+        const calls = await call({
+          source: mutationUpdateAccounts,
+          variableValues: {
+            options: {
+              first_name: faker.name.firstName(),
+              last_name: faker.name.lastName(),
+            },
+          },
+          contextValue: {
+            user: jwt.decode(token),
+          },
+        });
+        expect(calls.data.updateAccounts.status).toEqual('Ok');
+        expect(calls.data.updateAccounts.statusCode).toEqual(200);
+        expect(calls.data).toEqual({
+          updateAccounts: {
+            status: 'Ok',
+            statusCode: 200,
+            message: 'Accounts has been updated',
+          },
+        });
+        return done();
+      });
+    } else {
+      test('User not have data', async (done) => {
+        expect(2 + 2).toEqual(4);
         return done();
       });
     }

@@ -38,3 +38,12 @@ export class ResetInput {
   @Field(() => String, { nullable: false })
   token: string;
 }
+
+@InputType()
+export class UpdateAccountsInput {
+  @Field(() => String, { nullable: false })
+  first_name: string;
+
+  @Field(() => String, { nullable: true })
+  last_name: string;
+}

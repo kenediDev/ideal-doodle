@@ -4,6 +4,8 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { timestamps, __process__ } from '../../utils/env';
@@ -12,10 +14,12 @@ import {
   CreateUserInput,
   LoginInput,
   ResetInput,
+  UpdateAccountsInput,
 } from '../../schema/input/userInput';
 import jwt from 'jsonwebtoken';
 import { secretsToken } from '../../utils/secrets';
 import { Transpoter } from '../../utils/transpoter';
+import { AccountsEntity } from './AccountsEntity';
 
 @ObjectType()
 @Entity('user')
@@ -39,6 +43,18 @@ export class UserEntity extends BaseEntity {
   @Field(() => Date, { nullable: true })
   @Column(timestamps, { nullable: false })
   createAt: Date;
+
+  @Field(() => AccountsEntity)
+  @OneToOne(() => AccountsEntity)
+  @JoinColumn()
+  accounts: AccountsEntity;
+
+  @BeforeInsert()
+  async insertAccounts() {
+    const accounts = new AccountsEntity();
+    accounts.save();
+    this.accounts = accounts;
+  }
 
   @BeforeInsert()
   async insertCreateAt() {

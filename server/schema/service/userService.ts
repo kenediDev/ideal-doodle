@@ -1,8 +1,9 @@
 import { Service } from 'typedi';
 import { Connection } from 'typeorm';
 import { InjectConnection } from 'typeorm-typedi-extensions';
+import { AccountsEntity } from '../../typeorm/entity/AccountsEntity';
 import { UserEntity } from '../../typeorm/entity/UserEntity';
-import { CreateUserInput } from '../input/userInput';
+import { CreateUserInput, UpdateAccountsInput } from '../input/userInput';
 import { UserQueryResponse } from '../query/userQuery';
 
 @Service()
@@ -40,6 +41,32 @@ export class UserService {
       status: 'Ok',
       statusCode: 200,
       user: check,
+    };
+  }
+
+  async update(
+    options: UpdateAccountsInput,
+    args: string
+  ): Promise<UserQueryResponse> {
+    const update = await this.con
+      .createQueryBuilder(UserEntity, 'user')
+      .leftJoinAndSelect('user.accounts', 'accounts')
+      .where('user.username=:username', { username: args })
+      .getOne();
+    if (!update) {
+      throw new Error('Accounts not found');
+    }
+    update.accounts.first_name = options.first_name;
+    update.accounts.last_name = options.last_name;
+    await this.con.manager.update(
+      AccountsEntity,
+      update.accounts.id,
+      update.accounts
+    );
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Accounts has been updated',
     };
   }
 }

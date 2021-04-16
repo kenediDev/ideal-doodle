@@ -78,6 +78,7 @@ class App {
       })
       .catch(async (err) => {
         this.loggerDB(err, false);
+        console.log(err);
         return err;
       });
   }
