@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { UserDecode } from '../../config/sconfig';
 import { UserEntity } from '../../typeorm/entity/UserEntity';
 import { ApolloContext } from '../../utils/apolloContext';
-import { CreateUserInput, LoginInput } from '../input/userInput';
+import { CreateUserInput, LoginInput, ResetInput } from '../input/userInput';
 import { UserQueryResponse } from '../query/userQuery';
 import { UserService } from '../service/userService';
 
@@ -51,6 +51,16 @@ export class UserResolvers {
       status: 'Ok',
       statusCode: 200,
       user: await UserEntity.Me(context.user.user.username),
+    };
+  }
+
+  @Mutation(() => UserQueryResponse)
+  async reset(@Arg('options') options: ResetInput): Promise<UserQueryResponse> {
+    await UserEntity.reset(options);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Accounts has been reset',
     };
   }
 }

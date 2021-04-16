@@ -13,6 +13,7 @@ var bodyParser = require('body-parser');
 import exJWT from 'express-jwt';
 import { secretsToken } from '../utils/secrets';
 import { ApolloContext } from '../utils/apolloContext';
+import { Transpoter } from '../utils/transpoter';
 
 class App {
   public app: express.Application = express();
@@ -35,10 +36,17 @@ class App {
     }
   }
 
-  public extensions() {
+  public async extensions() {
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(bodyParser.json());
     this.app.use(cors());
+    const trans = await Transpoter();
+    if (!__test__) {
+      trans.verify((err, res) => {
+        if (err) return console.log(err);
+        console.log('SMTP has been connection');
+      });
+    }
     this.app.use(
       exJWT({
         secret: secretsToken,

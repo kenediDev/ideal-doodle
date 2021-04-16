@@ -32,3 +32,9 @@ export class LoginInput {
   @Field(() => String, { nullable: false })
   password: string;
 }
+
+@InputType()
+export class ResetInput {
+  @Field(() => String, { nullable: false })
+  token: string;
+}

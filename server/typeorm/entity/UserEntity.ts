@@ -6,11 +6,16 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { timestamps } from '../../utils/env';
+import { timestamps, __process__ } from '../../utils/env';
 import bcrypt from 'bcrypt';
-import { CreateUserInput, LoginInput } from '../../schema/input/userInput';
+import {
+  CreateUserInput,
+  LoginInput,
+  ResetInput,
+} from '../../schema/input/userInput';
 import jwt from 'jsonwebtoken';
 import { secretsToken } from '../../utils/secrets';
+import { Transpoter } from '../../utils/transpoter';
 
 @ObjectType()
 @Entity('user')
@@ -80,5 +85,31 @@ export class UserEntity extends BaseEntity {
     return this.createQueryBuilder()
       .where('username=:username', { username: options })
       .getOne();
+  }
+
+  static async reset(options: ResetInput) {
+    const check = await this.findOne({
+      where: [
+        {
+          username: options.token,
+        },
+        {
+          email: options.token,
+        },
+      ],
+    });
+    if (!check) {
+      throw new Error('Accounts not found');
+    }
+    const trans = await Transpoter();
+    trans.sendMail({
+      from: __process__.smtp_user,
+      to: check.email,
+      subject: 'Hello ✔', // Subject line
+      text: 'Hello world?', // plain text body
+      html: '<b>Hello world?</b>', // html body
+    });
+
+    return check;
   }
 }

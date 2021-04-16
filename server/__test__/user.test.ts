@@ -79,6 +79,16 @@ const queryMe = gql`
   }
 `;
 
+const mutationReset = gql`
+  mutation reset($options: ResetInput!) {
+    reset(options: $options) {
+      status
+      statusCode
+      message
+    }
+  }
+`;
+
 describe('User Tester', () => {
   test('Create', async (done) => {
     const calls = await call({
@@ -133,6 +143,26 @@ describe('User Tester', () => {
       );
       expect(calls.data.login.status).toEqual('Ok');
       expect(calls.data.login.statusCode).toEqual(200);
+      return done();
+    });
+
+    test('reset', async (done) => {
+      const user = await UserEntity.findOne();
+      const calls = await call({
+        source: mutationReset,
+        variableValues: {
+          options: {
+            token: user.username,
+          },
+        },
+      });
+      expect(calls.data).toEqual({
+        reset: {
+          status: 'Ok',
+          statusCode: 200,
+          message: 'Accounts has been reset',
+        },
+      });
       return done();
     });
   } else {
