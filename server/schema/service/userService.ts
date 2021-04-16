@@ -5,6 +5,7 @@ import { AccountsEntity } from '../../typeorm/entity/AccountsEntity';
 import { UserEntity } from '../../typeorm/entity/UserEntity';
 import {
   CreateUserInput,
+  passwordInput,
   UpdateAccountsInput,
   Upload,
 } from '../input/userInput';
@@ -110,6 +111,25 @@ export class UserService {
       status: 'Ok',
       statusCode: 200,
       message: 'Profile has been updated',
+    };
+  }
+
+  async updatePassword(
+    options: passwordInput,
+    args: string
+  ): Promise<UserQueryResponse> {
+    const check = await UserEntity.findOne({ where: { username: args } });
+    if (options.new_password !== options.confirm_password) {
+      throw new Error("Password don't match, please check again");
+    }
+    await UserEntity.verifyPassword(options, args);
+    check.password = options.new_password;
+    console.log(check);
+    await this.con.manager.update(UserEntity, check.id, check);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Password has been updated',
     };
   }
 }

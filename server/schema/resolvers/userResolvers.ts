@@ -6,6 +6,7 @@ import { ApolloContext } from '../../utils/apolloContext';
 import {
   CreateUserInput,
   LoginInput,
+  passwordInput,
   ResetInput,
   UpdateAccountsInput,
   Upload,
@@ -87,5 +88,14 @@ export class UserResolvers {
     @Ctx() context: ApolloContext<UserDecode>
   ): Promise<UserQueryResponse> {
     return this.service.updateAvatar(file, context.user.user.username);
+  }
+
+  @Authorized()
+  @Mutation(() => UserQueryResponse)
+  async password(
+    @Arg('options') options: passwordInput,
+    @Ctx() context: ApolloContext<UserDecode>
+  ): Promise<UserQueryResponse> {
+    return this.service.updatePassword(options, context.user.user.username);
   }
 }

@@ -101,6 +101,16 @@ const mutationUpdateAccounts = gql`
   }
 `;
 
+const mutationPassword = gql`
+  mutation password($options: passwordInput!) {
+    password(options: $options) {
+      status
+      statusCode
+      message
+    }
+  }
+`;
+
 describe('User Tester', () => {
   test('Create', async (done) => {
     const calls = await call({
@@ -239,6 +249,30 @@ describe('User Tester', () => {
         expect(calls.data.me.statusCode).toEqual(200);
         expect(calls.data.me.user).not.toEqual(null);
         expect(calls.data.me.user.username.length).not.toEqual(null);
+        return done();
+      });
+
+      test('Update Password', async (done) => {
+        const calls = await call({
+          source: mutationPassword,
+          variableValues: {
+            options: {
+              old_password: 'Password',
+              new_password: 'NewPassword',
+              confirm_password: 'NewPassword',
+            },
+          },
+          contextValue: {
+            user: jwt.decode(token),
+          },
+        });
+        expect(calls.data).toEqual({
+          password: {
+            status: 'Ok',
+            statusCode: 200,
+            message: 'Password has been updated',
+          },
+        });
         return done();
       });
     } else {

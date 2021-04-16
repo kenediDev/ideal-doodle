@@ -2,6 +2,7 @@ import { Field, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -13,6 +14,7 @@ import bcrypt from 'bcrypt';
 import {
   CreateUserInput,
   LoginInput,
+  passwordInput,
   ResetInput,
   UpdateAccountsInput,
 } from '../../schema/input/userInput';
@@ -44,6 +46,10 @@ export class UserEntity extends BaseEntity {
   @Column(timestamps, { nullable: false })
   createAt: Date;
 
+  @Field(() => Date, { nullable: true })
+  @Column(timestamps, { nullable: false, onUpdate: 'CURRENT_TIMESTAMPS' })
+  updateAt: Date;
+
   @Field(() => AccountsEntity)
   @OneToOne(() => AccountsEntity)
   @JoinColumn()
@@ -65,6 +71,19 @@ export class UserEntity extends BaseEntity {
       Math.floor((Math.random() + 3) * Math.random())
     );
   }
+  @BeforeUpdate()
+  async updatePassword() {
+    this.password = await bcrypt.hash(
+      this.password,
+      Math.floor((Math.random() + 3) * Math.random())
+    );
+  }
+
+  @BeforeUpdate()
+  async updateTimeAt() {
+    this.updateAt = new Date();
+  }
+
   static async filterCreate(options: CreateUserInput) {
     const check = await this.findOne({
       where: [{ username: options.username }, { email: options.email }],
@@ -124,6 +143,14 @@ export class UserEntity extends BaseEntity {
         text: 'Hello world?', // plain text body
         html: '<b>Hello world?</b>', // html body
       });
+    }
+    return check;
+  }
+  static async verifyPassword(options: passwordInput, args: string) {
+    const check = await this.findOne({ where: { username: args } });
+    const verify = await bcrypt.compare(options.old_password, check.password);
+    if (!verify) {
+      throw new Error('Password is wrong, please check again');
     }
     return check;
   }
