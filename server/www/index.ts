@@ -32,7 +32,7 @@ class App {
     if (!__test__) {
       this.app.use(
         '/static',
-        express.static(path.join(__dirname, '../assets/media'))
+        express.static(path.join(__dirname, '../schema/assets/media'))
       );
       this.listen();
     }

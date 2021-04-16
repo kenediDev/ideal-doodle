@@ -10,7 +10,7 @@
     "e2e": "ng e2e",
     "node": "ts-node server/www/index.ts",
     "nodemon": "nodemon server/www/index.ts",
-    "jest": "cross-env test=true jest server/__test__/*.test.ts",
+    "jest": "rm server/schema/assets/media/* && cross-env test=true jest server/__test__/*.test.ts",
     "jestall": "cross-env test=true jest --watchAll server/__test__/*.test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/.bin/typeorm",
     "entities": "npm run typeorm -- entity:create --config server/config/tconfig.ts --connection --d server/typeorm/entity --name",
