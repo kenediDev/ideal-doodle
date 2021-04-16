@@ -47,7 +47,7 @@ export class UserEntity extends BaseEntity {
   createAt: Date;
 
   @Field(() => Date, { nullable: true })
-  @Column(timestamps, { nullable: false, onUpdate: 'CURRENT_TIMESTAMPS' })
+  @Column(timestamps, { nullable: true, onUpdate: 'CURRENT_TIMESTAMPS' })
   updateAt: Date;
 
   @Field(() => AccountsEntity)

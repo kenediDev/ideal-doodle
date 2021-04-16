@@ -124,7 +124,6 @@ export class UserService {
     }
     await UserEntity.verifyPassword(options, args);
     check.password = options.new_password;
-    console.log(check);
     await this.con.manager.update(UserEntity, check.id, check);
     return {
       status: 'Ok',
