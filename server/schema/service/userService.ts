@@ -35,12 +35,16 @@ export class UserService {
     return {
       status: 'Ok',
       statusCode: 200,
-      results: await this.con.createQueryBuilder(UserEntity, 'user').getMany(),
+      results: await this.con
+        .createQueryBuilder(UserEntity, 'user')
+        .leftJoinAndSelect('user.accounts', 'accounts')
+        .getMany(),
     };
   }
   async detail(args: string): Promise<UserQueryResponse> {
     const check = await this.con
       .createQueryBuilder(UserEntity, 'user')
+      .leftJoinAndSelect('user.accounts', 'accounts')
       .where('user.id=:id', { id: args })
       .getOne();
     if (!check) {
