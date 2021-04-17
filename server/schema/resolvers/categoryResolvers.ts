@@ -35,6 +35,7 @@ export class CategoryResolvers {
     return this.service.create(options, context.user.user.username);
   }
 
+  @Authorized()
   @Mutation(() => CategoryQueryResponse)
   async updateCategory(
     @Arg('options') options: UpdateCategoryInput

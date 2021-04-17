@@ -8,6 +8,10 @@ import {
   UpdateCategoryInput,
 } from '../input/inputCategory';
 import { CategoryQueryResponse } from '../query/categoryQuery';
+import fs from 'fs';
+import path from 'path';
+import { __test__ } from '../../utils/env';
+import { Saveimage } from '../../utils/imageSave';
 
 @Service()
 export class CategoryService {
@@ -41,6 +45,11 @@ export class CategoryService {
       .leftJoinAndSelect('accounts.location', 'country')
       .where('user.username=:username', { username: args })
       .getOne();
+    const file = await options.file;
+    const filename = `${file.filename.replace('.', '')}${Math.random()
+      .toString(36)
+      .substring(8)}.${file.mimetype.split('/')[1]}`;
+    Saveimage(filename, 'category', file);
 
     const create = new CategoryEntity();
     create.name = options.name;

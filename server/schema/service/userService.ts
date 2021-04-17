@@ -14,6 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { __test__ } from '../../utils/env';
 import { CountryEntity } from '../../typeorm/entity/CountryEntity';
+import { Saveimage } from '../../utils/imageSave';
 
 @Service()
 export class UserService {
@@ -110,16 +111,7 @@ export class UserService {
     const filename = `${file.filename.replace('.', '')}${Math.random()
       .toString(36)
       .substring(8)}.${file.mimetype.split('/')[1]}`;
-    const direction = `../assets/media/${filename}`;
-    file
-      .createReadStream()
-      .pipe(fs.createWriteStream(path.join(__dirname, direction)))
-      .on('finish', async () => {
-        if (!__test__) {
-          console.log('Image has been save');
-        }
-      })
-      .on('error', (err) => console.log('Image cannot be save ' + err));
+    Saveimage(filename, 'author', file);
     check.accounts.avatar = `/static/${filename}`;
     await this.con.manager.update(
       AccountsEntity,

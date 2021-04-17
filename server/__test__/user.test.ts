@@ -124,13 +124,6 @@ describe('User Tester', () => {
         },
       },
     });
-    expect(calls.data).toEqual({
-      createUser: {
-        status: 'Ok',
-        statusCode: 201,
-        message: 'Accounts has been created',
-      },
-    });
     const T = await UserEntity.createQueryBuilder().getCount();
     fs.writeFileSync(
       path.join(__dirname, './assets/requirements.json'),
@@ -139,6 +132,13 @@ describe('User Tester', () => {
         token: '',
       })
     );
+    expect(calls.data).toEqual({
+      createUser: {
+        status: 'Ok',
+        statusCode: 201,
+        message: 'Accounts has been created',
+      },
+    });
     return done();
   });
 
@@ -364,7 +364,7 @@ describe('User Tester', () => {
           .set('Content-Type', 'multipart/form-data')
           .field(
             'operations',
-            '{"query": "mutation updateAvatar($file: Upload!) { updateAvatar(file: $file) {  message } }"}'
+            '{"query": "mutation updateAvatar($file: Upload!) { updateAvatar(file: $file) { message }}"}'
           )
           .field('map', '{"0": ["variables.file"]}')
           .attach(

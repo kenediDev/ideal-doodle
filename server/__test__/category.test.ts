@@ -4,6 +4,9 @@ import faker from 'faker';
 import jwt from 'jsonwebtoken';
 import { token } from './user.test';
 import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
+import path from 'path';
+import supertest from 'supertest';
+import { app } from '../www';
 
 const queryCategory = gql`
   query {
@@ -107,25 +110,33 @@ describe('Category', () => {
   });
   if (token) {
     test('create', async (done) => {
-      const calls = await call({
-        source: mutationCreate,
-        variableValues: {
-          options: {
-            name: faker.name.title(),
-          },
-        },
-        contextValue: {
-          user: jwt.decode(token),
-        },
-      });
-      expect(calls.data).toEqual({
-        createCategory: {
-          status: 'Ok',
-          statusCode: 201,
-          message: 'Category has been created',
-        },
-      });
-      return done();
+      const name = faker.name.title().toString();
+      await supertest(app.app)
+        .post('/graphql')
+        .type('form')
+        .set('Content-Type', 'multipart/form-data')
+        .set('Authorization', `Bearer ${token}`)
+        .field(
+          'operations',
+          `{"query": "mutation createCategory($file: Upload!, $name: String!) { createCategory(options: {file: $file,name: $name}) { message }}", "variables": {"file": null, "name": "${name}"} }`
+        )
+        .field('map', '{"file": ["variables.file"]}')
+        .attach(
+          'file',
+          path.join(
+            __dirname,
+            './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+          )
+        )
+        .expect(200)
+        .then((res) => {
+          expect(res.body.data).toEqual({
+            createCategory: {
+              message: 'Category has been created',
+            },
+          });
+          return done();
+        });
     });
 
     test('detail', async (done) => {
