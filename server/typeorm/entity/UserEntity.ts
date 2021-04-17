@@ -6,6 +6,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -16,13 +17,13 @@ import {
   LoginInput,
   passwordInput,
   ResetInput,
-  UpdateAccountsInput,
 } from '../../schema/input/userInput';
 import jwt from 'jsonwebtoken';
 import { secretsToken } from '../../utils/secrets';
 import { Transpoter } from '../../utils/transpoter';
 import { AccountsEntity } from './AccountsEntity';
 import { CountryEntity } from './CountryEntity';
+import { CategoryEntity } from './CategoryEntity';
 
 @ObjectType()
 @Entity('user')
@@ -55,6 +56,10 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => AccountsEntity)
   @JoinColumn()
   accounts: AccountsEntity;
+
+  @Field(() => CategoryEntity, { nullable: true })
+  @OneToMany(() => CategoryEntity, (category) => category.author)
+  category: CategoryEntity[];
 
   async insertCountry() {
     const country = new CountryEntity();

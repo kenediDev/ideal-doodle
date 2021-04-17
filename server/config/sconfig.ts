@@ -1,5 +1,6 @@
 import { AuthChecker, buildSchema } from 'type-graphql';
 import Container from 'typedi';
+import { CategoryResolvers } from '../schema/resolvers/categoryResolvers';
 import { UserResolvers } from '../schema/resolvers/userResolvers';
 
 export interface UserDecode {
@@ -21,7 +22,7 @@ const AuthCheckers: AuthChecker<UserDecode> = ({ context }) => {
 };
 
 export const schema = buildSchema({
-  resolvers: [UserResolvers],
+  resolvers: [UserResolvers, CategoryResolvers],
   validate: false,
   authMode: 'null',
   authChecker: AuthCheckers,
