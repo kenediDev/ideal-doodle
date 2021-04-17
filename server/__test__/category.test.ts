@@ -184,7 +184,9 @@ describe('Category', () => {
     });
 
     test('Update Icon', async (done) => {
-      const category = await CategoryEntity.findOne();
+      const category = await CategoryEntity.createQueryBuilder()
+        .orderBy('createAt', 'DESC')
+        .getOne();
       await supertest(app.app)
         .post('/graphql')
         .type('form')
