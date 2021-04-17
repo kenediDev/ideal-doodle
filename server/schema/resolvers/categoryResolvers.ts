@@ -5,6 +5,7 @@ import { ApolloContext } from '../../utils/apolloContext';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
+  UpdateIconCategoryInput,
 } from '../input/inputCategory';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 import { CategoryService } from '../service/categoryService';
@@ -41,5 +42,13 @@ export class CategoryResolvers {
     @Arg('options') options: UpdateCategoryInput
   ): Promise<CategoryQueryResponse> {
     return this.service.update(options);
+  }
+
+  @Authorized()
+  @Mutation(() => CategoryQueryResponse)
+  async updateIconCategory(
+    @Arg('options') options: UpdateIconCategoryInput
+  ): Promise<CategoryQueryResponse> {
+    return this.service.updateIcon(options);
   }
 }

@@ -6,6 +6,7 @@ import { UserEntity } from '../../typeorm/entity/UserEntity';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
+  UpdateIconCategoryInput,
 } from '../input/inputCategory';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 import fs from 'fs';
@@ -94,6 +95,37 @@ export class CategoryService {
       status: 'Ok',
       statusCode: 200,
       message: 'Category has been updated',
+    };
+  }
+
+  async updateIcon(
+    options: UpdateIconCategoryInput
+  ): Promise<CategoryQueryResponse> {
+    const check = await this.con
+      .getRepository(CategoryEntity)
+      .findOne({ where: { id: options.id } });
+    if (!check) {
+      throw new Error('Category not found');
+    }
+    try {
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../assets/media/category/${check.icon.replace('/static/', '')}`
+        )
+      );
+    } catch (err) {}
+    const file = await options.file;
+    const filename = `${
+      __test__ ? 'Update-Icon' : file.filename.replace('.', '')
+    }${Math.random().toString(36).substring(6)}.${file.mimetype.split('/')[1]}`;
+    Saveimage(filename, 'category', file);
+    check.icon = `/static/${filename}`;
+    await this.con.manager.update(CategoryEntity, check.id, check);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Icon has been updated',
     };
   }
 }

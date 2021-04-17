@@ -19,3 +19,12 @@ export class UpdateCategoryInput {
   @Field(() => String, { nullable: false })
   name: string;
 }
+
+@InputType()
+export class UpdateIconCategoryInput {
+  @Field(() => String, { nullable: false })
+  id: string;
+
+  @Field(() => GraphQLUpload, { nullable: false })
+  file: Upload;
+}

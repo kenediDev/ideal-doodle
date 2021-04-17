@@ -10,8 +10,6 @@ import {
   Upload,
 } from '../input/userInput';
 import { UserQueryResponse } from '../query/userQuery';
-import fs from 'fs';
-import path from 'path';
 import { __test__ } from '../../utils/env';
 import { CountryEntity } from '../../typeorm/entity/CountryEntity';
 import { Saveimage } from '../../utils/imageSave';

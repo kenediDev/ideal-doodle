@@ -182,6 +182,36 @@ describe('Category', () => {
       });
       return done();
     });
+
+    test('Update Icon', async (done) => {
+      const category = await CategoryEntity.findOne();
+      await supertest(app.app)
+        .post('/graphql')
+        .type('form')
+        .set('Content-Type', 'multipart/form-data')
+        .set('Authorization', `Bearer ${token}`)
+        .field(
+          'operations',
+          `{"query": "mutation updateIconCategory($file: Upload!, $id: String!) { updateIconCategory(options: {file: $file, id: $id}) { message } }", "variables": {"file": null, "id": "${category.id}"}}`
+        )
+        .field('map', '{"file": ["variables.file"]}')
+        .attach(
+          'file',
+          path.join(
+            __dirname,
+            './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+          )
+        )
+        .expect(200)
+        .then((res) => {
+          expect(res.body.data).toEqual({
+            updateIconCategory: {
+              message: 'Icon has been updated',
+            },
+          });
+          return done();
+        });
+    });
   } else {
     test.skip('Skip Not have user for token', async (done) => {
       expect(2 + 2).toEqual(4);
