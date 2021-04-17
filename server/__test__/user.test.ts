@@ -258,8 +258,8 @@ describe('User Tester', () => {
           variableValues: {
             options: {
               old_password: 'Password',
-              new_password: 'NewPassword',
-              confirm_password: 'NewPassword',
+              new_password: 'Password',
+              confirm_password: 'Password',
             },
           },
           contextValue: {

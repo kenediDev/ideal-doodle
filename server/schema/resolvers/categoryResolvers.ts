@@ -16,6 +16,13 @@ export class CategoryResolvers {
     return this.service.all();
   }
 
+  @Query(() => CategoryQueryResponse)
+  async detailCategory(
+    @Arg('options') options: string
+  ): Promise<CategoryQueryResponse> {
+    return this.service.detail(options);
+  }
+
   @Authorized()
   @Mutation(() => CategoryQueryResponse)
   async createCategory(
