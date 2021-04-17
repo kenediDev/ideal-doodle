@@ -17,7 +17,7 @@
     "create": "npm run typeorm -- migration:create --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'",
     "generate": "npm run typeorm -- migration:generate --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'",
     "rm-media": "rm server/schema/assets/media/*",
-    "reset": "ts-node server/utils/reset.ts"
+    "reset": "cross-env test=true ts-node server/utils/reset.ts"
   },
   "private": true,
   "dependencies": {

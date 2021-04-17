@@ -24,6 +24,7 @@ import { Transpoter } from '../../utils/transpoter';
 import { AccountsEntity } from './AccountsEntity';
 import { CountryEntity } from './CountryEntity';
 import { CategoryEntity } from './CategoryEntity';
+import { ProductEntity } from './ProductEntity';
 
 @ObjectType()
 @Entity('user')
@@ -53,13 +54,24 @@ export class UserEntity extends BaseEntity {
   updateAt: Date;
 
   @Field(() => AccountsEntity)
-  @OneToOne(() => AccountsEntity)
-  @JoinColumn()
+  @OneToOne(() => AccountsEntity, { cascade: ['update', 'remove'] })
+  @JoinColumn({
+    name: 'accounts',
+    referencedColumnName: 'id',
+  })
   accounts: AccountsEntity;
 
   @Field(() => CategoryEntity, { nullable: true })
-  @OneToMany(() => CategoryEntity, (category) => category.author)
+  @OneToMany(() => CategoryEntity, (category) => category.author, {
+    nullable: true,
+  })
   category: CategoryEntity[];
+
+  @Field(() => ProductEntity, { nullable: true })
+  @OneToMany(() => ProductEntity, (product) => product.author, {
+    nullable: true,
+  })
+  product: ProductEntity[];
 
   async insertCountry() {
     const country = new CountryEntity();

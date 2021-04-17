@@ -7,7 +7,7 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
   UpdateIconCategoryInput,
-} from '../input/inputCategory';
+} from '../input/categoryInput';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 import fs from 'fs';
 import path from 'path';
@@ -121,6 +121,7 @@ export class CategoryService {
     }${Math.random().toString(36).substring(6)}.${file.mimetype.split('/')[1]}`;
     Saveimage(filename, 'category', file);
     check.icon = `/static/${filename}`;
+
     await this.con.manager.update(CategoryEntity, check.id, check);
     return {
       status: 'Ok',

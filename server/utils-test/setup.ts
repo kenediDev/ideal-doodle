@@ -14,6 +14,7 @@ const read = fs.readFileSync(
 
 export const token = read ? JSON.parse(read)['token'] : null;
 export const count = read ? JSON.parse(read)['count'] : null;
+export const category = read ? JSON.parse(read)['category'] : null;
 
 let con: Connection;
 

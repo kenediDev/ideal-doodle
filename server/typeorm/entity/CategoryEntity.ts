@@ -4,11 +4,14 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CreateCategoryInput } from '../../schema/input/inputCategory';
+import { CreateCategoryInput } from '../../schema/input/categoryInput';
 import { timestamps } from '../../utils/env';
+import { ProductEntity } from './ProductEntity';
 import { UserEntity } from './UserEntity';
 
 @ObjectType()
@@ -37,6 +40,16 @@ export class CategoryEntity extends BaseEntity {
   @Field(() => UserEntity)
   @ManyToOne(() => UserEntity, (user) => user.category)
   author: UserEntity;
+
+  @Field(() => ProductEntity, { nullable: true })
+  @OneToMany(() => ProductEntity, (product) => product.category, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({
+    name: 'product',
+    referencedColumnName: 'id',
+  })
+  product!: ProductEntity[];
 
   @BeforeInsert()
   async insertCreateAt() {

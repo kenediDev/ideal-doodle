@@ -7,6 +7,7 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import supertest from 'supertest';
 import { app } from '../www';
+import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
 
 const Queryalls = gql`
   query {
@@ -122,6 +123,7 @@ describe('User Tester', () => {
       JSON.stringify({
         count: T,
         token: '',
+        category: 0,
       })
     );
     expect(calls.data).toEqual({
@@ -136,9 +138,11 @@ describe('User Tester', () => {
 
   if (count) {
     test('Login', async (done) => {
-      const user = await UserEntity.createQueryBuilder()
-        .orderBy('createAt', 'DESC')
-        .getOne();
+      const L = await CategoryEntity.createQueryBuilder().getCount();
+      let choice = UserEntity.createQueryBuilder();
+
+      let user = await choice.orderBy('createAt', 'DESC').getOne();
+      let counts = await choice.getCount();
       const calls = await call({
         source: mutationLogin,
         variableValues: {
@@ -151,8 +155,9 @@ describe('User Tester', () => {
       fs.writeFileSync(
         path.join(__dirname, './assets/requirements.json'),
         JSON.stringify({
-          count: count,
+          count: counts,
           token: calls.data.login.token,
+          category: L,
         })
       );
       expect(calls.data.login.status).toEqual('Ok');

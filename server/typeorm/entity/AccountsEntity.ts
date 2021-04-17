@@ -36,8 +36,11 @@ export class AccountsEntity extends BaseEntity {
   updateAt: Date;
 
   @Field(() => CountryEntity, { nullable: true })
-  @OneToOne(() => CountryEntity, { nullable: true })
-  @JoinColumn()
+  @OneToOne(() => CountryEntity)
+  @JoinColumn({
+    name: 'country',
+    referencedColumnName: 'id',
+  })
   location: CountryEntity;
 
   @BeforeInsert()

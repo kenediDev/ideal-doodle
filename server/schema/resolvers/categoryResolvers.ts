@@ -6,7 +6,7 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
   UpdateIconCategoryInput,
-} from '../input/inputCategory';
+} from '../input/categoryInput';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 import { CategoryService } from '../service/categoryService';
 

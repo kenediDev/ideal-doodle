@@ -40,16 +40,6 @@ const queryCategory = gql`
   }
 `;
 
-const mutationCreate = gql`
-  mutation createCategory($options: CreateCategoryInput!) {
-    createCategory(options: $options) {
-      status
-      statusCode
-      message
-    }
-  }
-`;
-
 const queryDetail = gql`
   query detailCategory($options: String!) {
     detailCategory(options: $options) {
