@@ -35,7 +35,7 @@ export class AccountsEntity extends BaseEntity {
   @Column(timestamps, { nullable: false })
   updateAt: Date;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => CountryEntity, { nullable: true })
   @OneToOne(() => CountryEntity, { nullable: true })
   @JoinColumn()
   location: CountryEntity;

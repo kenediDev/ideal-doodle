@@ -2,7 +2,10 @@ import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { Service } from 'typedi';
 import { UserDecode } from '../../config/sconfig';
 import { ApolloContext } from '../../utils/apolloContext';
-import { CreateCategoryInput } from '../input/inputCategory';
+import {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from '../input/inputCategory';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 import { CategoryService } from '../service/categoryService';
 
@@ -30,5 +33,12 @@ export class CategoryResolvers {
     @Ctx() context: ApolloContext<UserDecode>
   ): Promise<CategoryQueryResponse> {
     return this.service.create(options, context.user.user.username);
+  }
+
+  @Mutation(() => CategoryQueryResponse)
+  async updateCategory(
+    @Arg('options') options: UpdateCategoryInput
+  ): Promise<CategoryQueryResponse> {
+    return this.service.update(options);
   }
 }

@@ -3,7 +3,10 @@ import { Connection } from 'typeorm';
 import { InjectConnection } from 'typeorm-typedi-extensions';
 import { CategoryEntity } from '../../typeorm/entity/CategoryEntity';
 import { UserEntity } from '../../typeorm/entity/UserEntity';
-import { CreateCategoryInput } from '../input/inputCategory';
+import {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from '../input/inputCategory';
 import { CategoryQueryResponse } from '../query/categoryQuery';
 
 @Service()
@@ -16,6 +19,9 @@ export class CategoryService {
       statusCode: 200,
       results: await this.con
         .createQueryBuilder(CategoryEntity, 'category')
+        .leftJoinAndSelect('category.author', 'user')
+        .leftJoinAndSelect('user.accounts', 'accounts')
+        .leftJoinAndSelect('accounts.location', 'country')
         .getMany(),
     };
   }
@@ -50,6 +56,9 @@ export class CategoryService {
   async detail(args: string): Promise<CategoryQueryResponse> {
     const check = await this.con
       .createQueryBuilder(CategoryEntity, 'category')
+      .leftJoinAndSelect('category.author', 'user')
+      .leftJoinAndSelect('user.accounts', 'accounts')
+      .leftJoinAndSelect('accounts.location', 'country')
       .where('category.id=:id', { id: args })
       .getOne();
     if (!check) {
@@ -59,6 +68,23 @@ export class CategoryService {
       status: 'Ok',
       statusCode: 200,
       category: check,
+    };
+  }
+
+  async update(options: UpdateCategoryInput): Promise<CategoryQueryResponse> {
+    const check = await this.con
+      .createQueryBuilder(CategoryEntity, 'category')
+      .where('category.id=:id', { id: options.id })
+      .getOne();
+    if (!check) {
+      throw new Error('Category not found');
+    }
+    check.name = options.name;
+    await this.con.manager.update(CategoryEntity, check.id, check);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Category has been updated',
     };
   }
 }
