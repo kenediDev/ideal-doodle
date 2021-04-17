@@ -1,4 +1,4 @@
-import { call } from '../utils-test/setup';
+import { call, token, count } from '../utils-test/setup';
 import { gql } from 'graphql-request';
 import faker from 'faker';
 import { UserEntity } from '../typeorm/entity/UserEntity';
@@ -7,14 +7,6 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import supertest from 'supertest';
 import { app } from '../www';
-
-const read = fs.readFileSync(
-  path.join(__dirname, './assets/requirements.json'),
-  { encoding: 'utf-8' }
-);
-
-export const token = read ? JSON.parse(read)['token'] : null;
-export const count = read ? JSON.parse(read)['count'] : null;
 
 const Queryalls = gql`
   query {

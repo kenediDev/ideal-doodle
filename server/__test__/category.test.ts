@@ -1,12 +1,11 @@
 import { gql } from 'graphql-request';
-import { call } from '../utils-test/setup';
+import { call, token } from '../utils-test/setup';
 import faker from 'faker';
 import jwt from 'jsonwebtoken';
-import { token } from './user.test';
 import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
-import path from 'path';
 import supertest from 'supertest';
 import { app } from '../www';
+import path from 'path';
 
 const queryCategory = gql`
   query {
