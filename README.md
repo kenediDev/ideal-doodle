@@ -1,6 +1,33 @@
 ## Typescript And Angular - (Selling Products)
 
-This application is connected to the circleci for automatic tester and is useful to me, is to display what is running well
+This application is connected to the circleci for automatic tester and is useful to me,
+is to display what is running well :bowtie:
+
+:Link: URL -> http://localhost:8000/graphql
+
+- ( User Params )
+- createUser
+- login
+- allUser
+- detailUser
+- me
+- reset
+- updateAccounts
+- updateAvatar
+- password (change Password)
+
+- ( Category Params )
+- allCategory
+- createCategory
+- updateCategory
+- updateIconCategory
+- destroyCategory
+
+- ( Products Params )
+- allProduct
+- destroyProduct
+- detailProduct
+- createProduct
 
 #### Tester
 
