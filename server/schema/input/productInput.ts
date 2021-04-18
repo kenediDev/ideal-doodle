@@ -5,6 +5,9 @@ import { Upload } from './userInput';
 
 @InputType()
 export class CreateProductInput {
+  @Field(() => String, { nullable: true })
+  id?: string;
+
   @Field(() => String, { nullable: false })
   @MinLength(2, {
     message: 'Character names must be longer than 2 characters',
@@ -23,6 +26,6 @@ export class CreateProductInput {
     message: 'Characters description must be longer than 50 characters',
   })
   description: string;
-  @Field(() => String, { nullable: false })
-  category: string;
+  @Field(() => String, { nullable: true })
+  category?: string;
 }

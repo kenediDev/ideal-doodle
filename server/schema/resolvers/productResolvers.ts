@@ -27,6 +27,15 @@ export class ProductResolvers {
 
   @Authorized()
   @Mutation(() => ProductQueryResponse)
+  async updateProduct(
+    @Arg('options') options: CreateProductInput,
+    @Ctx() context: ApolloContext<UserDecode>
+  ): Promise<ProductQueryResponse> {
+    return this.service.update(options, context.user.user.username);
+  }
+
+  @Authorized()
+  @Mutation(() => ProductQueryResponse)
   async destroyProduct(
     @Arg('options') options: string,
     @Ctx() context: ApolloContext<UserDecode>

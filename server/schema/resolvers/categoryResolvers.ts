@@ -39,9 +39,10 @@ export class CategoryResolvers {
   @Authorized()
   @Mutation(() => CategoryQueryResponse)
   async updateCategory(
-    @Arg('options') options: UpdateCategoryInput
+    @Arg('options') options: UpdateCategoryInput,
+    @Ctx() context: ApolloContext<UserDecode>
   ): Promise<CategoryQueryResponse> {
-    return this.service.update(options);
+    return this.service.update(options, context.user.user.username);
   }
 
   @Authorized()

@@ -204,6 +204,52 @@ describe('Product', () => {
       });
       return done();
     });
+
+    test('Update', async (done) => {
+      const product = await ProductEntity.query(
+        'select product.id as productId, user.id as userId from product left join user on user.id = product.authorId limit 1'
+      );
+      const _ = product as ProductUser[];
+      const o_ = _[0];
+      const user = await UserEntity.findOne({ where: { id: o_.userId } });
+      const s_ = jwt.sign({ user: user }, secretsToken, { algorithm: 'RS256' });
+      await supertest(app.app)
+        .post('/graphql')
+        .type('form')
+        .set('Content-Type', 'multipart/form-data')
+        .set('Authorization', `Bearer ${s_}`)
+        .field(
+          'operations',
+          `{"query": "mutation updateProduct($id: String!,$file: Upload!, $name: String!, $sell: String!, $promo: String!, $agent: String!, $description: String!, $category: String!) { updateProduct(options: {id: $id, name: $name, photo: $file, sell: $sell, promo: $promo, agent: $agent, description: $description, category: $category}) { message } }", "variables": {"id": "${
+            o_.productId
+          }","file": null, "name": "${
+            faker.name.title() + 'Update'
+          }", "sell": "${faker.datatype.float(
+            90000
+          )}", "promo": "${faker.datatype.float(
+            90000
+          )}", "description": "${faker.lorem.paragraph()}", "category": "${
+            category.id
+          }", "agent": "${faker.datatype.float(90000)}"}}`
+        )
+        .field('map', '{"file": ["variables.file"]}')
+        .attach(
+          'file',
+          path.join(
+            __dirname,
+            './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+          )
+        )
+        .expect(200)
+        .then((res) => {
+          expect(res.body.data).toEqual({
+            updateProduct: {
+              message: 'Product has been updated',
+            },
+          });
+          return done();
+        });
+    });
   } else {
     test.skip('Skip not have user or category product', async (done) => {
       expect(2 + 2).toBe(4);
@@ -212,7 +258,7 @@ describe('Product', () => {
   }
   describe('Product Failed', () => {
     if (token && category) {
-      test('Destroy', async (done) => {
+      test("Destroy (You don't have this access!)", async (done) => {
         const product = await ProductEntity.query(
           'select product.id as productId, user.id as userId from product left join user on user.id = product.authorId where user.id IS NOT NULL limit 1'
         );
@@ -230,7 +276,7 @@ describe('Product', () => {
         expect(calls.errors[0].message).toEqual("You don't have this access!");
         return done();
       });
-      test('Detail', async (done) => {
+      test('Detail (Product Not Found)', async (done) => {
         const calls = await call({
           source: queryDetail,
           variableValues: {
@@ -239,6 +285,42 @@ describe('Product', () => {
         });
         expect(calls.errors[0].message).toEqual('Product not found');
         return done();
+      });
+      test('Update (You not have this access!)', async (done) => {
+        const product = await ProductEntity.findOne();
+        await supertest(app.app)
+          .post('/graphql')
+          .type('form')
+          .set('Content-Type', 'multipart/form-data')
+          .set('Authorization', `Bearer ${token}`)
+          .field(
+            'operations',
+            `{"query": "mutation updateProduct($id: String!,$file: Upload!, $name: String!, $sell: String!, $promo: String!, $agent: String!, $description: String!, $category: String!) { updateProduct(options: {id: $id, name: $name, photo: $file, sell: $sell, promo: $promo, agent: $agent, description: $description, category: $category}) { message } }", "variables": {"id": "${
+              product.id
+            }","file": null, "name": "${
+              faker.name.title() + 'Update'
+            }", "sell": "${faker.datatype.float(
+              90000
+            )}", "promo": "${faker.datatype.float(
+              90000
+            )}", "description": "${faker.lorem.paragraph()}", "category": "${
+              category.id
+            }", "agent": "${faker.datatype.float(90000)}"}}`
+          )
+          .field('map', '{"file": ["variables.file"]}')
+          .attach(
+            'file',
+            path.join(
+              __dirname,
+              './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+            )
+          )
+          .expect(200)
+          .then((res) => {
+            const _ = JSON.parse(res.text);
+            expect(_.errors[0].message).toEqual('You not have this access!');
+            return done();
+          });
       });
     } else {
       test('Skip Not have token', async (done) => {

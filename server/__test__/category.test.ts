@@ -8,6 +8,11 @@ import { app } from '../www';
 import path from 'path';
 import { UserDecode } from '../config/sconfig';
 
+interface CategoryUser {
+  categoryId: string;
+  userId: string;
+}
+
 const queryCategory = gql`
   query {
     allCategory {
@@ -158,19 +163,22 @@ describe('Category', () => {
     });
 
     test('Update', async (done) => {
-      const category = await CategoryEntity.createQueryBuilder()
-        .orderBy('createAt', 'DESC')
-        .getOne();
+      const tokens = jwt.decode(token);
+      const T = tokens as UserDecode;
+      const categorys = await CategoryEntity.query(
+        `select category.id as categoryId from category left join user on user.id = category.authorId where user.username = "${T.user.username}" limit 1`
+      );
+      const _ = categorys as CategoryUser[];
       const calls = await call({
         source: mutationUpdate,
         variableValues: {
           options: {
-            id: category.id,
+            id: _[0].categoryId,
             name: faker.name.title() + 'Update',
           },
         },
         contextValue: {
-          user: jwt.decode(token),
+          user: tokens,
         },
       });
       expect(calls.data).toEqual({
@@ -248,7 +256,53 @@ describe('Category', () => {
 
   describe('Category Failed', () => {
     if (token && category) {
-      test('Destroy (Failed)', async (done) => {
+      test('Create (Name category already exists, please check again)', async (done) => {
+        const category = await CategoryEntity.findOne();
+        await supertest(app.app)
+          .post('/graphql')
+          .type('form')
+          .set('Content-Type', 'multipart/form-data')
+          .set('Authorization', `Bearer ${token}`)
+          .field(
+            'operations',
+            `{"query": "mutation createCategory($file: Upload!, $name: String!) { createCategory(options: {file: $file,name: $name}) { message }}", "variables": {"file": null, "name": "${category.name}"} }`
+          )
+          .field('map', '{"file": ["variables.file"]}')
+          .attach(
+            'file',
+            path.join(
+              __dirname,
+              './assets/17359247_417067498626677_9219998601191355511_o.jpeg'
+            )
+          )
+          .expect(200)
+          .then((res) => {
+            const _ = JSON.parse(res.text);
+            expect(_.errors[0].message).toEqual(
+              'Name category already exists, please check again'
+            );
+            return done();
+          });
+      });
+
+      test('Update (You not have this access!)', async (done) => {
+        const categorys = await CategoryEntity.findOne();
+        const calls = await call({
+          source: mutationUpdate,
+          variableValues: {
+            options: {
+              id: categorys.id,
+              name: faker.name.title() + 'Update',
+            },
+          },
+          contextValue: {
+            user: jwt.decode(token),
+          },
+        });
+        expect(calls.errors[0].message).toEqual('You not have this access!');
+        return done();
+      });
+      test('Destroy (You not have this access!)', async (done) => {
         const category = await CategoryEntity.findOne();
         const calls = await call({
           source: mutationDestroy,

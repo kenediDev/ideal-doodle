@@ -115,6 +115,9 @@ export class UserEntity extends BaseEntity {
     if (check) {
       throw new Error('Username or email already exists, please check again');
     }
+    if (options.password !== options.confirm_password) {
+      throw new Error("Password don't match, please check again");
+    }
     return check;
   }
   static async login(options: LoginInput) {

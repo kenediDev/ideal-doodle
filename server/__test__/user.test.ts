@@ -280,7 +280,58 @@ describe('User Tester', () => {
     }
   });
   describe('User Tester Unauthorizated (Failed)', () => {
-    test('All', async (done) => {
+    test("Create (Password don't match, please check again)", async (done) => {
+      const calls = await call({
+        source: mutationCreate,
+        variableValues: {
+          options: {
+            username: faker.internet.userName(),
+            email: faker.internet.email(),
+            password: 'kmdwqkmdqw',
+            confirm_password: 'kdmwqkmdwq',
+          },
+        },
+      });
+      expect(calls.errors[0].message).toEqual(
+        "Password don't match, please check again"
+      );
+      return done();
+    });
+
+    test('Reset (Accounts not found)', async (done) => {
+      const calls = await call({
+        source: mutationReset,
+        variableValues: {
+          options: {
+            token: 'kdmwqkdmwq',
+          },
+        },
+      });
+      expect(calls.errors[0].message).toEqual('Accounts not found');
+      return done();
+    });
+
+    test("Update Password (Password don't match, please check again)", async (done) => {
+      const calls = await call({
+        source: mutationPassword,
+        variableValues: {
+          options: {
+            old_password: 'Password',
+            new_password: 'dmwqkmdkqwdqw',
+            confirm_password: 'kmdwkqmdwqk',
+          },
+        },
+        contextValue: {
+          user: jwt.decode(token),
+        },
+      });
+      expect(calls.errors[0].message).toEqual(
+        "Password don't match, please check again"
+      );
+      return done();
+    });
+
+    test("All (Cannot read property 'user' of undefined) -> required (Auth)", async (done) => {
       const calls = await call({
         source: Queryalls,
       });
@@ -291,7 +342,7 @@ describe('User Tester', () => {
       return done();
     });
     if (count) {
-      test('Detail', async (done) => {
+      test("Detail (Cannot read property 'user' of undefined) -> required (Auth)", async (done) => {
         const user = await UserEntity.findOne();
         const calls = await call({
           source: queryDetail,
@@ -306,7 +357,7 @@ describe('User Tester', () => {
         return done();
       });
 
-      test('Me', async (done) => {
+      test("Me (Cannot read property 'user' of undefined) -> required (Auth)", async (done) => {
         const calls = await call({
           source: queryMe,
         });

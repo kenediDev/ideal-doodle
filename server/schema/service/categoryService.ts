@@ -91,13 +91,20 @@ export class CategoryService {
     };
   }
 
-  async update(options: UpdateCategoryInput): Promise<CategoryQueryResponse> {
+  async update(
+    options: UpdateCategoryInput,
+    args: string
+  ): Promise<CategoryQueryResponse> {
     const check = await this.con
       .createQueryBuilder(CategoryEntity, 'category')
+      .leftJoinAndSelect('category.author', 'user')
       .where('category.id=:id', { id: options.id })
       .getOne();
     if (!check) {
       throw new Error('Category not found');
+    }
+    if (check.author.username !== args) {
+      throw new Error('You not have this access!');
     }
     check.name = options.name;
     await this.con.manager.update(CategoryEntity, check.id, check);

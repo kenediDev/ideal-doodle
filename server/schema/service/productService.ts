@@ -116,4 +116,42 @@ export class ProductService {
       message: 'Product has been deleted',
     };
   }
+
+  async update(
+    options: CreateProductInput,
+    args: string
+  ): Promise<ProductQueryResponse> {
+    const check = await this.con
+      .getRepository(ProductEntity)
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.author', 'user')
+      .where('product.id=:id', { id: options.id })
+      .getOne();
+    if (!check) {
+      throw new Error('Product not found');
+    }
+    if (check.author.username !== args) {
+      throw new Error('You not have this access!');
+    }
+    const file = await options.photo;
+    const filename = `${
+      __test__ ? 'UPDATE' : file.filename.replace('.', '')
+    }${Math.random().toString(36).substring(8)}.${file.mimetype.split('/')[1]}`;
+    if (check.photo) {
+      removeImage(check.photo.replace('/static/', ''), 'product');
+      Saveimage(filename, 'product', file);
+      check.photo = `/static/${filename}`;
+    }
+    check.name = options.name;
+    check.sell = options.sell;
+    check.promo = options.promo;
+    check.agent = options.agent;
+    check.description = options.description;
+    await this.con.manager.update(ProductEntity, check.id, check);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Product has been updated',
+    };
+  }
 }
