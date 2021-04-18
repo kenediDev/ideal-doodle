@@ -60,6 +60,10 @@ export class ProductService {
       statusCode: 200,
       results: await this.con
         .createQueryBuilder(ProductEntity, 'product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.author', 'user')
+        .leftJoinAndSelect('user.accounts', 'accounts')
+        .leftJoinAndSelect('accounts.location', 'country')
         .getMany(),
     };
   }
