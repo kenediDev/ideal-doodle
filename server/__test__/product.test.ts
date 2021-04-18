@@ -108,6 +108,7 @@ describe('Product', () => {
         )
         .expect(200)
         .then((res) => {
+          console.log(res.text);
           expect(res.body.data).toEqual({
             createProduct: {
               message: 'Product has been created',

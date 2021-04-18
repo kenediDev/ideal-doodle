@@ -41,15 +41,18 @@ export class CategoryEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.category)
   author: UserEntity;
 
-  @Field(() => ProductEntity, { nullable: true })
-  @OneToMany(() => ProductEntity, (product) => product.category, {
-    onDelete: 'CASCADE',
-  })
+  @Field(() => [ProductEntity], { nullable: true })
+  @OneToMany(
+    (productentity) => ProductEntity,
+    (productentity) => productentity.category,
+    {
+      onDelete: 'CASCADE',
+    }
+  )
   @JoinColumn({
     name: 'product',
-    referencedColumnName: 'id',
   })
-  product!: ProductEntity[];
+  product: ProductEntity[];
 
   @BeforeInsert()
   async insertCreateAt() {

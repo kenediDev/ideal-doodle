@@ -18,9 +18,11 @@ export const timestamps = !dev
 export const text_ = !dev ? (__test__ ? 'varchar' : 'text') : 'varchar';
 export const pathDB = !dev ? (__test__ ? sqlite : __process__.db_name) : sqlite;
 
-console.log({
-  dbType: typeName,
-  mode: dev ? 'development' : 'production',
-  datetime: timestamps,
-  path: pathDB,
-});
+if (!__test__) {
+  console.log({
+    dbType: typeName,
+    mode: dev ? 'development' : 'production',
+    datetime: timestamps,
+    path: pathDB,
+  });
+}

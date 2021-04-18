@@ -21,10 +21,16 @@ export class CategoryService {
       status: 'Ok',
       statusCode: 200,
       results: await this.con
-        .createQueryBuilder(CategoryEntity, 'category')
+        .getRepository(CategoryEntity)
+        .createQueryBuilder('category')
         .leftJoinAndSelect('category.author', 'user')
         .leftJoinAndSelect('user.accounts', 'accounts')
         .leftJoinAndSelect('accounts.location', 'country')
+        .leftJoinAndSelect(
+          'category.product',
+          'product',
+          'product.category=category.id'
+        )
         .getMany(),
     };
   }
