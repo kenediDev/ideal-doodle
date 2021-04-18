@@ -3,8 +3,9 @@
 This application is connected to the circleci for automatic tester and is useful to me,
 is to display what is running well :bowtie:
 
-:link: URL -> http://localhost:8000/graphql
+URL -> http://localhost:8000/graphql :link:
 
+```
 - ( User Params )
 - createUser
 - login
@@ -15,19 +16,24 @@ is to display what is running well :bowtie:
 - updateAccounts
 - updateAvatar
 - password (change Password)
+```
 
+```
 - ( Category Params )
 - allCategory
 - createCategory
 - updateCategory
 - updateIconCategory
 - destroyCategory
+```
 
+```
 - ( Products Params )
 - allProduct
 - destroyProduct
 - detailProduct
 - createProduct
+```
 
 #### Tester
 
