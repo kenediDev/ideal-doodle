@@ -30,6 +30,7 @@ const queryAll = gql`
         description
         status
         category {
+          id
           name
           icon
         }
@@ -59,6 +60,45 @@ const mutationDestroy = gql`
       status
       statusCode
       message
+    }
+  }
+`;
+
+const queryDetail = gql`
+  mutation detailProduct($options: String!) {
+    detailProduct(options: $options) {
+      status
+      statusCode
+      product {
+        id
+        name
+        photo
+        sell
+        promo
+        agent
+        description
+        status
+        category {
+          id
+          name
+          icon
+        }
+        author {
+          accounts {
+            first_name
+            last_name
+            avatar
+            location {
+              country
+              province
+              city
+              address
+            }
+          }
+        }
+        createAt
+        updateAt
+      }
     }
   }
 `;
@@ -146,6 +186,24 @@ describe('Product', () => {
       });
       return done();
     });
+
+    test('Detail', async (done) => {
+      const product = await ProductEntity.findOne();
+      const calls = await call({
+        source: queryDetail,
+        variableValues: {
+          options: product.id,
+        },
+      });
+      expect(calls.data).toEqual({
+        detailProduct: {
+          status: 'Ok',
+          statusCode: 200,
+          product: calls.data.detailProduct.product,
+        },
+      });
+      return done();
+    });
   } else {
     test.skip('Skip not have user or category product', async (done) => {
       expect(2 + 2).toBe(4);
@@ -170,6 +228,16 @@ describe('Product', () => {
           },
         });
         expect(calls.errors[0].message).toEqual("You don't have this access!");
+        return done();
+      });
+      test('Detail', async (done) => {
+        const calls = await call({
+          source: queryDetail,
+          variableValues: {
+            options: '1',
+          },
+        });
+        expect(calls.errors[0].message).toEqual('Product not found');
         return done();
       });
     } else {

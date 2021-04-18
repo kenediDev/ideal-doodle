@@ -68,6 +68,26 @@ export class ProductService {
     };
   }
 
+  async detail(args: string): Promise<ProductQueryResponse> {
+    const check = await this.con
+      .getRepository(ProductEntity)
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.author', 'user')
+      .leftJoinAndSelect('user.accounts', 'accounts')
+      .leftJoinAndSelect('accounts.location', 'country')
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.id=:id', { id: args })
+      .getOne();
+    if (!check) {
+      throw new Error('Product not found');
+    }
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      product: check,
+    };
+  }
+
   async destroy(options: string, args: string): Promise<ProductQueryResponse> {
     const check = await this.con
       .createQueryBuilder(ProductEntity, 'product')

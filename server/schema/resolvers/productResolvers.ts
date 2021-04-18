@@ -33,4 +33,11 @@ export class ProductResolvers {
   ): Promise<ProductQueryResponse> {
     return this.service.destroy(options, context.user.user.username);
   }
+
+  @Mutation(() => ProductQueryResponse)
+  async detailProduct(
+    @Arg('options') options: string
+  ): Promise<ProductQueryResponse> {
+    return this.service.detail(options);
+  }
 }

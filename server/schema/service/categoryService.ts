@@ -69,10 +69,16 @@ export class CategoryService {
 
   async detail(args: string): Promise<CategoryQueryResponse> {
     const check = await this.con
-      .createQueryBuilder(CategoryEntity, 'category')
+      .getRepository(CategoryEntity)
+      .createQueryBuilder('category')
       .leftJoinAndSelect('category.author', 'user')
       .leftJoinAndSelect('user.accounts', 'accounts')
       .leftJoinAndSelect('accounts.location', 'country')
+      .leftJoinAndSelect(
+        'category.product',
+        'product',
+        'product.category=category.id'
+      )
       .where('category.id=:id', { id: args })
       .getOne();
     if (!check) {
