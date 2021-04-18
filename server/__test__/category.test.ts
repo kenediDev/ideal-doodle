@@ -6,6 +6,7 @@ import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
 import supertest from 'supertest';
 import { app } from '../www';
 import path from 'path';
+import { UserDecode } from '../config/sconfig';
 
 const queryCategory = gql`
   query {
@@ -76,6 +77,16 @@ const queryDetail = gql`
 const mutationUpdate = gql`
   mutation updateCategory($options: UpdateCategoryInput!) {
     updateCategory(options: $options) {
+      status
+      statusCode
+      message
+    }
+  }
+`;
+
+const mutationDestroy = gql`
+  mutation destroyCategory($options: String!) {
+    destroyCategory(options: $options) {
       status
       statusCode
       message
@@ -203,10 +214,59 @@ describe('Category', () => {
           return done();
         });
     });
+    test('Destroy', async (done) => {
+      const tokens = jwt.decode(token);
+      const user = tokens as UserDecode;
+      const categorys = await CategoryEntity.query(
+        `select category.id as categoryId  from category left join user on user.id = category.authorId where user.username = "${user.user.username}" limit 1`
+      );
+      const id = categorys[0].categoryId;
+      const calls = await call({
+        source: mutationDestroy,
+        variableValues: {
+          options: id,
+        },
+        contextValue: {
+          user: tokens,
+        },
+      });
+      expect(calls.data).toEqual({
+        destroyCategory: {
+          status: 'Ok',
+          statusCode: 200,
+          message: 'Category has been deleted',
+        },
+      });
+      return done();
+    });
   } else {
     test.skip('Skip Not have user for token', async (done) => {
       expect(2 + 2).toEqual(4);
       return done();
     });
   }
+
+  describe('Category Failed', () => {
+    if (token) {
+      test('Destroy (Failed)', async (done) => {
+        const category = await CategoryEntity.findOne();
+        const calls = await call({
+          source: mutationDestroy,
+          variableValues: {
+            options: category.id,
+          },
+          contextValue: {
+            user: jwt.decode(token),
+          },
+        });
+        expect(calls.errors[0].message).toEqual('You not have this access!');
+        return done();
+      });
+    } else {
+      test.skip('Skip Not have user for token', async (done) => {
+        expect(2 + 2).toEqual(4);
+        return done();
+      });
+    }
+  });
 });

@@ -51,4 +51,12 @@ export class CategoryResolvers {
   ): Promise<CategoryQueryResponse> {
     return this.service.updateIcon(options);
   }
+
+  @Mutation(() => CategoryQueryResponse)
+  async destroyCategory(
+    @Arg('options') options: string,
+    @Ctx() context: ApolloContext<UserDecode>
+  ): Promise<CategoryQueryResponse> {
+    return this.service.destroy(options, context.user.user.username);
+  }
 }

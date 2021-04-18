@@ -129,4 +129,24 @@ export class CategoryService {
       message: 'Icon has been updated',
     };
   }
+
+  async destroy(options: string, args: string): Promise<CategoryQueryResponse> {
+    const check = await this.con
+      .createQueryBuilder(CategoryEntity, 'category')
+      .leftJoinAndSelect('category.author', 'user')
+      .where('category.id=:id', { id: options })
+      .getOne();
+    if (!check) {
+      throw new Error('Category not found');
+    }
+    if (check.author.username !== args) {
+      throw new Error('You not have this access!');
+    }
+    await this.con.manager.remove(check);
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Category has been deleted',
+    };
+  }
 }
