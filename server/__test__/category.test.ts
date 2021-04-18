@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { call, token } from '../utils-test/setup';
+import { call, category, token } from '../utils-test/setup';
 import faker from 'faker';
 import jwt from 'jsonwebtoken';
 import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
@@ -247,7 +247,7 @@ describe('Category', () => {
   }
 
   describe('Category Failed', () => {
-    if (token) {
+    if (token && category) {
       test('Destroy (Failed)', async (done) => {
         const category = await CategoryEntity.findOne();
         const calls = await call({

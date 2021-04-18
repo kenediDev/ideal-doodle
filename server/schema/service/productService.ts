@@ -4,7 +4,8 @@ import { InjectConnection } from 'typeorm-typedi-extensions';
 import { CategoryEntity } from '../../typeorm/entity/CategoryEntity';
 import { ProductEntity } from '../../typeorm/entity/ProductEntity';
 import { UserEntity } from '../../typeorm/entity/UserEntity';
-import { Saveimage } from '../../utils/imageSave';
+import { __test__ } from '../../utils/env';
+import { removeImage, Saveimage } from '../../utils/imageSave';
 import { CreateProductInput } from '../input/productInput';
 import { ProductQueryResponse } from '../query/productQuery';
 
@@ -43,6 +44,7 @@ export class ProductService {
     create.promo = options.promo;
     create.description = options.description;
     create.category = category;
+    create.author = check;
     await this.con.manager.save(create);
 
     return {
@@ -59,6 +61,35 @@ export class ProductService {
       results: await this.con
         .createQueryBuilder(ProductEntity, 'product')
         .getMany(),
+    };
+  }
+
+  async destroy(options: string, args: string): Promise<ProductQueryResponse> {
+    const check = await this.con
+      .createQueryBuilder(ProductEntity, 'product')
+      .leftJoinAndSelect('product.author', 'user')
+      .where('product.id=:id', { id: options });
+    let count = await check.getCount();
+    let data = await check.getOne();
+    if (!check) {
+      throw new Error('Product not found');
+    }
+    if (data.author.username !== args) {
+      throw new Error("You don't have this access!");
+    }
+    if (!__test__) {
+      removeImage(data.photo.replace('/static/', ''), 'product');
+      await this.con.manager.remove(data);
+    } else {
+      if (count > 5) {
+        removeImage(data.photo.replace('/static/', ''), 'product');
+        await this.con.manager.remove(data);
+      }
+    }
+    return {
+      status: 'Ok',
+      statusCode: 200,
+      message: 'Product has been deleted',
     };
   }
 }

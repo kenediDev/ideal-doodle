@@ -9,10 +9,8 @@ import {
   UpdateIconCategoryInput,
 } from '../input/categoryInput';
 import { CategoryQueryResponse } from '../query/categoryQuery';
-import fs from 'fs';
-import path from 'path';
 import { __test__ } from '../../utils/env';
-import { Saveimage } from '../../utils/imageSave';
+import { removeImage, Saveimage } from '../../utils/imageSave';
 
 @Service()
 export class CategoryService {
@@ -107,19 +105,17 @@ export class CategoryService {
     if (!check) {
       throw new Error('Category not found');
     }
-    try {
-      fs.unlinkSync(
-        path.join(
-          __dirname,
-          `../assets/media/category/${check.icon.replace('/static/', '')}`
-        )
-      );
-    } catch (err) {}
+    if (check.icon) {
+      removeImage(check.icon.replace('/static/', ''), 'category');
+    }
     const file = await options.file;
+
     const filename = `${
       __test__ ? 'Update-Icon' : file.filename.replace('.', '')
     }${Math.random().toString(36).substring(6)}.${file.mimetype.split('/')[1]}`;
+
     Saveimage(filename, 'category', file);
+
     check.icon = `/static/${filename}`;
 
     await this.con.manager.update(CategoryEntity, check.id, check);
@@ -134,15 +130,23 @@ export class CategoryService {
     const check = await this.con
       .createQueryBuilder(CategoryEntity, 'category')
       .leftJoinAndSelect('category.author', 'user')
-      .where('category.id=:id', { id: options })
-      .getOne();
+      .where('category.id=:id', { id: options });
+    let data = await check.getOne();
+    let count = await check.getCount();
     if (!check) {
       throw new Error('Category not found');
     }
-    if (check.author.username !== args) {
+    if (data.author.username !== args) {
       throw new Error('You not have this access!');
     }
-    await this.con.manager.remove(check);
+    removeImage(data.icon.replace('/static/', ''), 'category');
+    if (!__test__) {
+      await this.con.manager.remove(data);
+    } else {
+      if (count > 5) {
+        await this.con.manager.remove(data);
+      }
+    }
     return {
       status: 'Ok',
       statusCode: 200,

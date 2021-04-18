@@ -1,5 +1,6 @@
 import { Field, ObjectType, Int } from 'type-graphql';
 import {
+  BaseEntity,
   BeforeInsert,
   BeforeUpdate,
   Column,
@@ -14,7 +15,7 @@ import { UserEntity } from './UserEntity';
 
 @ObjectType()
 @Entity('product')
-export class ProductEntity {
+export class ProductEntity extends BaseEntity {
   @Field(() => String, { nullable: true })
   @PrimaryGeneratedColumn('uuid')
   readonly id: string;

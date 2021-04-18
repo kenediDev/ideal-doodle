@@ -24,4 +24,13 @@ export class ProductResolvers {
   ): Promise<ProductQueryResponse> {
     return this.service.create(options, context.user.user.username);
   }
+
+  @Authorized()
+  @Mutation(() => ProductQueryResponse)
+  async destroyProduct(
+    @Arg('options') options: string,
+    @Ctx() context: ApolloContext<UserDecode>
+  ): Promise<ProductQueryResponse> {
+    return this.service.destroy(options, context.user.user.username);
+  }
 }

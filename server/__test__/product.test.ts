@@ -5,6 +5,15 @@ import supertest from 'supertest';
 import { app } from '../www';
 import { CategoryEntity } from '../typeorm/entity/CategoryEntity';
 import path from 'path';
+import jwt from 'jsonwebtoken';
+import { ProductEntity } from '../typeorm/entity/ProductEntity';
+import { UserEntity } from '../typeorm/entity/UserEntity';
+import { secretsToken } from '../utils/secrets';
+
+interface ProductUser {
+  productId: string;
+  userId: string;
+}
 
 const queryAll = gql`
   query {
@@ -40,6 +49,16 @@ const queryAll = gql`
         createAt
         updateAt
       }
+    }
+  }
+`;
+
+const mutationDestroy = gql`
+  mutation destroyProduct($options: String!) {
+    destroyProduct(options: $options) {
+      status
+      statusCode
+      message
     }
   }
 `;
@@ -97,10 +116,66 @@ describe('Product', () => {
           return done();
         });
     });
+
+    test('Destory', async (done) => {
+      const product = await ProductEntity.query(
+        'select product.id as productId, user.id as userId from product left join user on user.id = product.authorId where user.id IS NOT NULL limit 1'
+      );
+      const _t = product as ProductUser[];
+      const t = _t[0];
+      const _ = await UserEntity.findOne({ where: { id: t.userId } });
+      const newTokens = await jwt.sign({ user: _ }, secretsToken, {
+        algorithm: 'RS256',
+      });
+      const calls = await call({
+        source: mutationDestroy,
+        variableValues: {
+          options: t.productId,
+        },
+        contextValue: {
+          user: jwt.decode(newTokens),
+        },
+      });
+      expect(calls.data).toEqual({
+        destroyProduct: {
+          status: 'Ok',
+          statusCode: 200,
+          message: 'Product has been deleted',
+        },
+      });
+      return done();
+    });
   } else {
     test.skip('Skip not have user or category product', async (done) => {
       expect(2 + 2).toBe(4);
       return done();
     });
   }
+  describe('Product Failed', () => {
+    if (token && category) {
+      test('Destroy', async (done) => {
+        const product = await ProductEntity.query(
+          'select product.id as productId, user.id as userId from product left join user on user.id = product.authorId where user.id IS NOT NULL limit 1'
+        );
+        const _ = product as ProductUser[];
+        const t_ = _[0];
+        const calls = await call({
+          source: mutationDestroy,
+          variableValues: {
+            options: t_.productId,
+          },
+          contextValue: {
+            user: jwt.decode(token),
+          },
+        });
+        expect(calls.errors[0].message).toEqual("You don't have this access!");
+        return done();
+      });
+    } else {
+      test('Skip Not have token', async (done) => {
+        expect(2 + 2).toBe(4);
+        return done();
+      });
+    }
+  });
 });

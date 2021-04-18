@@ -32,3 +32,11 @@ export const Saveimage = (filename: string, args: string, options: Upload) => {
       }
     });
 };
+
+export const removeImage = (filename: string, args: string) => {
+  try {
+    fs.unlinkSync(
+      path.join(__dirname, `../schema/assets/media/${args}/${filename}`)
+    );
+  } catch (err) {}
+};

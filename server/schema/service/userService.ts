@@ -12,7 +12,7 @@ import {
 import { UserQueryResponse } from '../query/userQuery';
 import { __test__ } from '../../utils/env';
 import { CountryEntity } from '../../typeorm/entity/CountryEntity';
-import { Saveimage } from '../../utils/imageSave';
+import { removeImage, Saveimage } from '../../utils/imageSave';
 
 @Service()
 export class UserService {
@@ -106,9 +106,13 @@ export class UserService {
     if (!check) {
       throw new Error('Accounts not found');
     }
+
     const filename = `${file.filename.replace('.', '')}${Math.random()
       .toString(36)
       .substring(8)}.${file.mimetype.split('/')[1]}`;
+    try {
+      removeImage(check.accounts.avatar.replace('/static/', ''), 'author');
+    } catch (err) {}
     Saveimage(filename, 'author', file);
     check.accounts.avatar = `/static/${filename}`;
     await this.con.manager.update(
