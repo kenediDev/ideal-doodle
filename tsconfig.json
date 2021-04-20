@@ -9,7 +9,9 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
   },
   "include": ["server/**/*.ts", "src/**/*.ts", "config/*.js"],
   "exclude": ["node_modules"]

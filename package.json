@@ -19,7 +19,7 @@
     "generate": "npm run typeorm -- migration:generate --config server/config/tconfig.ts --connection --d server/typeorm/migrations --name 'migrations'",
     "rm-media": "rm server/schema/assets/media/*",
     "reset": "cross-env test=true ts-node server/utils/reset.ts",
-    "webpack-prod": "webpack --config config/webpack.prod.js"
+    "webpack-prod": "cross-env prod=true webpack --config config/webpack.prod.js"
   },
   "private": true,
   "dependencies": {

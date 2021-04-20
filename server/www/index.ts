@@ -85,7 +85,9 @@ class App {
     useContainer(Container);
     this.app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 6 }));
     this.typeormCon();
-    this.webpacks();
+    if (!__prod__) {
+      this.webpacks();
+    }
   }
 
   private webpacks() {
