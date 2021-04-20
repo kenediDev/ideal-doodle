@@ -8,8 +8,9 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowJs": true
   },
-  "include": ["server/**/*.ts", "src/**/*.ts"],
+  "include": ["server/**/*.ts", "src/**/*.ts", "config/*.js"],
   "exclude": ["node_modules"]
 }

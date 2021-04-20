@@ -1,21 +1,28 @@
-import 'apollo-cache-control';
-import 'reflect-metadata';
 import express from 'express';
 import cors from 'cors';
-import { Connection, createConnection } from 'typeorm';
 import { __process__, __prod__, __test__ } from '../utils/env';
-import Con from '../config/tconfig';
-import { ApolloServer } from 'apollo-server-express';
-import { schema, UserDecode } from '../config/sconfig';
-import { useContainer } from 'typeorm';
-import { Container } from 'typeorm-typedi-extensions';
 import path from 'path';
 var bodyParser = require('body-parser');
 import exJWT from 'express-jwt';
 import { secretsToken } from '../utils/secrets';
-import { ApolloContext } from '../utils/apolloContext';
 import { Transpoter } from '../utils/transpoter';
+// Typeorm
+import Con from '../config/tconfig';
+import { Container } from 'typeorm-typedi-extensions';
+import { Connection, createConnection, useContainer } from 'typeorm';
+// Graphql
 import { graphqlUploadExpress } from 'graphql-upload';
+import { ApolloServer } from 'apollo-server-express';
+import { schema, UserDecode } from '../config/sconfig';
+import 'apollo-cache-control';
+import 'reflect-metadata';
+import { ApolloContext } from '../utils/apolloContext';
+// Webpack
+import hotmiddleware from 'webpack-hot-middleware';
+import middleware from 'webpack-dev-middleware';
+import webpack from 'webpack';
+import configWeb from '../../config/webpack.common';
+import devWeb from '../../config/webpack.dev';
 
 class App {
   public app: express.Application = express();
@@ -78,6 +85,17 @@ class App {
     useContainer(Container);
     this.app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 6 }));
     this.typeormCon();
+    this.webpacks();
+  }
+
+  private webpacks() {
+    const compiler = webpack(devWeb);
+    this.app.use(middleware(compiler));
+    this.app.use(
+      hotmiddleware(compiler, {
+        publicPath: configWeb.output.publicPath,
+      })
+    );
   }
 
   public async typeormCon(): Promise<Connection> {
