@@ -1,4 +1,4 @@
-## Typescript And Angular - (Selling Products)
+## Typescript - Typeorm - Graphql
 
 This application is connected to the circleci for automatic tester and is useful to me,
 is to display what is running well :bowtie:
